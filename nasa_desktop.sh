@@ -1,22 +1,38 @@
 #!/bin/bash
 
 {
-    function set_desktop() {
-        sqlite3 ~/Library/Application\ Support/Dock/desktoppicture.db \
-            "update data set value = '$1'" \
-            && killall Dock
-    }
+    date_slug=$(date "+%y%m%d")
+    image_filename="$PWD/images/$date_slug.jpg"
+    cache_page_filename="$PWD/cache/ap$date_slug.html"
 
-    function download_image() {
-        if [ ! -f $1 ]; then
-            image_url=$(phantomjs get_url.js)
-            echo "$image_url\n"
-            curl $image_url > $1
+    function download_page() {
+        if [ ! -f $cache_page_filename ]; then
+            curl -# -L http://apod.nasa.gov/apod/ap$date_slug.html \
+                > $cache_page_filename
         fi
     }
 
-    filename="images/ap$(date "+%y%m%d").jpg"
+    function get_url() {
+        cat $cache_page_filename |
+            grep -oE "href=[^>]*" | \
+            grep -oE "[^'\"]*.jpg"
+    }
 
-    download_image $filename
-    set_desktop $PWD/$filename
+    function download_image() {
+        if [ ! -f $image_filename ]; then
+            image_url=$(get_url)
+            echo "$image_url\n"
+            curl -# $image_url > $image_filename
+        fi
+    }
+
+    function set_desktop() {
+        sqlite3 ~/Library/Application\ Support/Dock/desktoppicture.db \
+            "update data set value = '$image_filename'" \
+            && killall Dock
+    }
+
+    download_page
+    download_image
+    set_desktop
 }
