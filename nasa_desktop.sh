@@ -8,9 +8,7 @@
     }
 
     function download_image() {
-        if [ -f $1 ]; then
-            echo "Today's image has already been downloaded"
-        else
+        if [ ! -f $1 ]; then
             image_url=$(phantomjs get_url.js)
             echo "$image_url\n"
             curl $image_url > $1
