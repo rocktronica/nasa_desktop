@@ -7,6 +7,9 @@
     )
     cache_page_filename="$PWD/cache/ap$date_slug.html"
 
+    mkdir -p $PWD/cache
+    mkdir -p $PWD/images
+
     function download_page() {
         if [ ! -f $cache_page_filename ]; then
             echo "Downloading page: $path/ap$date_slug.html"
