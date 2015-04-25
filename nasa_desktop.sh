@@ -22,7 +22,8 @@
         echo $path/$(
             cat $cache_page_filename |
                 grep -oE "href=[^>]*" | \
-                grep -oE "[^'\"]*.(jpg|png)"
+                grep -oE "[^'\"]*.(jpg|png)" |
+                head -n 1
         )
     }
 
