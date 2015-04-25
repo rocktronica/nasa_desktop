@@ -2,7 +2,9 @@
 
 {
     path='http://apod.nasa.gov/apod'
-    date_slug=$(date "+%y%m%d")
+    date_slug=$(
+        [[ -z "$1" ]] && date "+%y%m%d" || echo $1
+    )
     image_filename="$PWD/images/$date_slug.jpg"
     cache_page_filename="$PWD/cache/ap$date_slug.html"
 
