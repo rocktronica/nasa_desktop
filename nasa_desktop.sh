@@ -1,7 +1,7 @@
 #!/bin/bash
 
 {
-    path='http://apod.nasa.gov/apod'
+    host_path='http://apod.nasa.gov/apod'
     date_slug=$(
         [[ -z "$1" ]] && date "+%y%m%d" || echo $1
     )
@@ -12,19 +12,20 @@
 
     function download_page() {
         if [ ! -f $cache_page_filename ]; then
-            echo "Downloading page: $path/ap$date_slug.html"
-            curl -# -L $path/ap$date_slug.html \
+            echo "Downloading page: $host_path/ap$date_slug.html"
+            curl -# -L $host_path/ap$date_slug.html \
                 > $cache_page_filename
         fi
     }
 
     function get_absolute_image_url() {
-        echo $path/$(
+        image_pathname=$(
             cat $cache_page_filename |
                 grep -oE "href=[^>]*" | \
                 grep -oE "[^'\"]*.(jpg|png)" |
                 head -n 1
         )
+        [[ -z "$image_pathname" ]] || echo $host_path/$image_pathname
     }
 
     function get_image_basename() {
@@ -36,17 +37,24 @@
 
         if [ ! -f $image_filename ]; then
             image_url=$(get_absolute_image_url)
-            echo "Downloading image: $image_url"
-            curl -# $image_url > $image_filename
+
+            if [ "$image_url" ]; then
+                echo "Downloading image: $image_url"
+                curl -# $image_url > $image_filename
+            else
+                echo "Couldn't find image"
+            fi
         fi
     }
 
     function set_desktop() {
         image_filename="$PWD/images/$(get_image_basename)"
 
-        sqlite3 ~/Library/Application\ Support/Dock/desktoppicture.db \
-            "update data set value = '$image_filename'" \
-            && killall Dock
+        if [ -f $image_filename ]; then
+            sqlite3 ~/Library/Application\ Support/Dock/desktoppicture.db \
+                "update data set value = '$image_filename'" \
+                && killall Dock
+        fi
     }
 
     download_page
