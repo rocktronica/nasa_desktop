@@ -2,10 +2,12 @@
 
 {
     opt_date_slug=$(date "+%y%m%d")
+    opt_force_downloads=false
 
-    while getopts :d: flag; do
+    while getopts :d:f flag; do
         case $flag in
             d) opt_date_slug=$OPTARG ;;
+            f) opt_force_downloads=true ;;
         esac
     done
 
@@ -16,7 +18,7 @@
     mkdir -p $PWD/images
 
     function download_page() {
-        if [ ! -f $cache_page_filename ]; then
+        if [ ! -f $cache_page_filename ] || $opt_force_downloads; then
             echo "Downloading page: $host_path/ap$opt_date_slug.html"
             curl -# -L $host_path/ap$opt_date_slug.html \
                 > $cache_page_filename
@@ -46,7 +48,7 @@
         fi
 
         image_filename="$PWD/images/$(get_image_basename)"
-        if [ ! -f $image_filename ]; then
+        if [ ! -f $image_filename ] || $opt_force_downloads; then
             echo "Downloading image: $image_url"
             curl -# $image_url > $image_filename
         fi
