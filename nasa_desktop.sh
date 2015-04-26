@@ -15,6 +15,7 @@
             echo "Downloading page: $host_path/ap$date_slug.html"
             curl -# -L $host_path/ap$date_slug.html \
                 > $cache_page_filename
+            echo
         fi
     }
 
@@ -33,28 +34,25 @@
     }
 
     function download_image() {
+        image_url=$(get_absolute_image_url)
+        if [ ! "$image_url" ]; then
+            echo "Couldn't find image"
+            exit 1
+        fi
+
         image_filename="$PWD/images/$(get_image_basename)"
-
         if [ ! -f $image_filename ]; then
-            image_url=$(get_absolute_image_url)
-
-            if [ "$image_url" ]; then
-                echo "Downloading image: $image_url"
-                curl -# $image_url > $image_filename
-            else
-                echo "Couldn't find image"
-            fi
+            echo "Downloading image: $image_url"
+            curl -# $image_url > $image_filename
         fi
     }
 
     function set_desktop() {
         image_filename="$PWD/images/$(get_image_basename)"
 
-        if [ -f $image_filename ]; then
-            sqlite3 ~/Library/Application\ Support/Dock/desktoppicture.db \
-                "update data set value = '$image_filename'" \
-                && killall Dock
-        fi
+        sqlite3 ~/Library/Application\ Support/Dock/desktoppicture.db \
+            "update data set value = '$image_filename'" \
+            && killall Dock
     }
 
     download_page
