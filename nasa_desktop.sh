@@ -1,19 +1,24 @@
 #!/bin/bash
 
 {
+    opt_date_slug=$(date "+%y%m%d")
+
+    while getopts :d: flag; do
+        case $flag in
+            d) opt_date_slug=$OPTARG ;;
+        esac
+    done
+
     host_path='http://apod.nasa.gov/apod'
-    date_slug=$(
-        [[ -z "$1" ]] && date "+%y%m%d" || echo $1
-    )
-    cache_page_filename="$PWD/cache/ap$date_slug.html"
+    cache_page_filename="$PWD/cache/ap$opt_date_slug.html"
 
     mkdir -p $PWD/cache
     mkdir -p $PWD/images
 
     function download_page() {
         if [ ! -f $cache_page_filename ]; then
-            echo "Downloading page: $host_path/ap$date_slug.html"
-            curl -# -L $host_path/ap$date_slug.html \
+            echo "Downloading page: $host_path/ap$opt_date_slug.html"
+            curl -# -L $host_path/ap$opt_date_slug.html \
                 > $cache_page_filename
             echo
         fi
