@@ -3,13 +3,29 @@
 {
     opt_date_slug=$(date "+%y%m%d")
     opt_force_downloads=false
+    opt_show_help=false
 
-    while getopts :d:f flag; do
+    while getopts :d:fh flag; do
         case $flag in
             d) opt_date_slug=$OPTARG ;;
             f) opt_force_downloads=true ;;
+            h) opt_show_help=true ;;
         esac
     done
+
+    if $opt_show_help; then
+        echo "\
+A script to download NASA's \"Astronomy Picture of the Day\" and
+set it as the desktop background.
+
+http://apod.nasa.gov/apod/astropix.html
+
+Options:
+    -d      Date to use instead of today. Format is YYMMDD.
+    -f      Ignore cache and force downloads anew.
+"
+        exit
+    fi
 
     host_path='http://apod.nasa.gov/apod'
     cache_page_filename="$PWD/cache/ap$opt_date_slug.html"
