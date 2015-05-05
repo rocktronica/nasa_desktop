@@ -78,7 +78,11 @@ Options:
             && killall Dock
     }
 
+    pushd $(dirname $0) > /dev/null
+
     download_page
     download_image
     set_desktop
+
+    popd > /dev/null
 }
