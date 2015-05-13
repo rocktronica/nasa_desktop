@@ -1,13 +1,11 @@
 #!/bin/bash
 
 {
-    opt_date_slug=$(date "+%y%m%d")
     opt_force_downloads=false
     opt_show_help=false
 
     while getopts :d:fh flag; do
         case $flag in
-            d) opt_date_slug=$OPTARG ;;
             f) opt_force_downloads=true ;;
             h) opt_show_help=true ;;
         esac
@@ -15,41 +13,38 @@
 
     if $opt_show_help; then
         echo "\
-A script to download NASA's \"Astronomy Picture of the Day\" and
+A script to download NASA's \"Image of the Day\" and
 set it as the desktop background.
 
-http://apod.nasa.gov/apod/astropix.html
+http://www.nasa.gov/multimedia/imagegallery/iotd.html
 
 Options:
-    -d      Date to use instead of today. Format is YYMMDD.
     -f      Ignore cache and force downloads anew.
 "
         exit
     fi
 
-    host_path='http://apod.nasa.gov/apod'
-    cache_page_filename="$PWD/cache/ap$opt_date_slug.html"
+    rss_feed_url='http://www.nasa.gov/rss/dyn/lg_image_of_the_day.rss'
+    cache_feed_filename="$PWD/cache/$(date "+%y%m%d").rss"
 
     mkdir -p $PWD/cache
     mkdir -p $PWD/images
 
-    function download_page() {
-        if [ ! -f $cache_page_filename ] || $opt_force_downloads; then
-            echo "Downloading page: $host_path/ap$opt_date_slug.html"
-            curl -# -L $host_path/ap$opt_date_slug.html \
-                > $cache_page_filename
+    function download_rss() {
+        if [ ! -f $cache_feed_filename ] || $opt_force_downloads; then
+            echo "Downloading RSS: $rss_feed_url"
+            curl -# -L $rss_feed_url > $cache_feed_filename
             echo
         fi
     }
 
     function get_absolute_image_url() {
         image_pathname=$(
-            cat $cache_page_filename |
-                grep -oE "href=[^>]*" | \
+            cat $cache_feed_filename |
                 grep -oE "[^'\"]*.(jpg|png)" |
                 head -n 1
         )
-        [[ -z "$image_pathname" ]] || echo $host_path/$image_pathname
+        [[ -z "$image_pathname" ]] || echo $image_pathname
     }
 
     function get_image_basename() {
@@ -80,7 +75,7 @@ Options:
 
     pushd $(dirname $0) > /dev/null
 
-    download_page
+    download_rss
     download_image
     set_desktop
 
