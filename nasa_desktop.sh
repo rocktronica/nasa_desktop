@@ -33,7 +33,7 @@ Options:
     function download_rss() {
         if [ ! -f $cache_feed_filename ] || $opt_force_downloads; then
             echo "Downloading RSS: $rss_feed_url"
-            curl -# -L $rss_feed_url > $cache_feed_filename
+            curl -# -L --compressed $rss_feed_url > $cache_feed_filename
             echo
         fi
     }
