@@ -41,7 +41,7 @@ Options:
     function get_absolute_image_url() {
         image_pathname=$(
             cat $cache_feed_filename |
-                grep -oE "[^'\"]*.(jpg|png)" |
+                grep -oE "[^'\"]*.(jpg|jpeg|png)" |
                 head -n 1
         )
         [[ -z "$image_pathname" ]] || echo $image_pathname
