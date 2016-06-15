@@ -27,24 +27,24 @@ Options:
     rss_feed_url='http://www.nasa.gov/rss/dyn/lg_image_of_the_day.rss'
     cache_feed_filename="$PWD/cache/$(date "+%y%m%d").rss"
 
-    mkdir -p $PWD/cache
-    mkdir -p $PWD/images
+    mkdir -p "$PWD/cache"
+    mkdir -p "$PWD/images"
 
     function download_rss() {
-        if [ ! -f $cache_feed_filename ] || $opt_force_downloads; then
+        if [ ! -f "$cache_feed_filename" ] || $opt_force_downloads; then
             echo "Downloading RSS: $rss_feed_url"
-            curl -# -L --compressed $rss_feed_url > $cache_feed_filename
+            curl -# -L --compressed $rss_feed_url > "$cache_feed_filename"
             echo
         fi
     }
 
     function get_absolute_image_url() {
         image_pathname=$(
-            cat $cache_feed_filename |
+            cat "$cache_feed_filename" |
                 grep -oE "[^'\"]*.(jpg|jpeg|png)" |
                 head -n 1
         )
-        [[ -z "$image_pathname" ]] || echo $image_pathname
+        [[ -z "$image_pathname" ]] || echo "$image_pathname"
     }
 
     function get_image_basename() {
@@ -59,9 +59,9 @@ Options:
         fi
 
         image_filename="$PWD/images/$(get_image_basename)"
-        if [ ! -f $image_filename ] || $opt_force_downloads; then
+        if [ ! -f "$image_filename" ] || $opt_force_downloads; then
             echo "Downloading image: $image_url"
-            curl -# $image_url > $image_filename
+            curl -# "$image_url" > "$image_filename"
         fi
     }
 
@@ -73,7 +73,7 @@ Options:
             && killall Dock
     }
 
-    pushd $(dirname $0) > /dev/null
+    pushd "$(dirname "$0")" > /dev/null
 
     download_rss
     download_image
