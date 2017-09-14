@@ -61,7 +61,7 @@ Options:
         image_filename="$PWD/images/$(get_image_basename)"
         if [ ! -f "$image_filename" ] || $opt_force_downloads; then
             echo "Downloading image: $image_url"
-            curl -# "$image_url" > "$image_filename"
+            curl -L -# "$image_url" > "$image_filename"
         fi
     }
 
